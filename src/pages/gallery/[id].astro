@@ -1,0 +1,26 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import pb from "../../utils/pb";
+import { Collections, type SvgRecord } from "../../utils/pbocketbase-types";
+
+const id = Astro.params.id;
+const svg: SvgRecord = await pb.collection(Collections.Svg).getOne(id);
+---
+<Layout>
+    <div class="flex w-full">
+    <div class="card bg-base-300 rounded-box grid h-20 grow place-items-center">content</div>
+    <div class="divider divider-horizontal">OR</div>
+    <div class="card bg-base-300 rounded-box grid h-20 grow place-items-center">content</div>
+    </div>
+
+    <div class="chat chat-start">
+    <div class="chat-bubble">
+        It's over Anakin,
+        <br />
+        I have the high ground.
+    </div>
+    </div>
+    <div class="chat chat-end">
+    <div class="chat-bubble">You underestimate my power!</div>
+    </div>
+</Layout>

@@ -1,9 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
 ---
 
 <Layout title="Générateur">
-  <main class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 min-h-screen">
+  <main class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[50px]">
     
     <div class="card bg-base-200 shadow-xl p-6 flex flex-col md:col-span-2">
       <h2 class="text-2xl font-bold mb-4 text-primary text-center">🎨 Entrer un prompt</h2>
@@ -95,4 +96,114 @@ import Layout from "../layouts/Layout.astro";
     }
 ]
     </script>
+
+    <button class="btn btn-secondary m-2" id="edit-button">Edit</button>
+    
+    <script>
+    const editButton = document.getElementById("edit-button");
+
+        async function handleEdit() {
+            let prompt = "";
+            let aiResponse = "";
+            const promptElement = document.getElementById("user-prompt");
+            prompt = promptElement ? promptElement.value : "";
+            console.log("Prompt soumis : ", prompt);
+            // Ajout du prompt de l'utilisateur à la liste
+            promptList.push({ role: "user", content: prompt });
+            const svgContainer = document.getElementById("svg-container");
+            // Afficher un spinner de chargement
+            svgContainer.innerHTML += `<span class="loading loading-ring loading-xl"></span>`;
+            generateButton.disabled = true;
+            editButton.disabled = true;
+            let svgOutput = document.getElementById("svg-output");
+            // Appeler la fonction pour générer le SVG
+            aiResponse = await generateSVG(promptList);
+            // Extraire le SVG de la réponse
+            const svgMatch = aiResponse.content.match(/<svg[\s\S]*?<\/svg>/i);
+            aiResponse.content = svgMatch ? svgMatch[0] : "";
+            console.log("Code SVG généré : ", aiResponse.content);
+            // Ajouter la réponse de l'IA à la liste des prompts
+            promptList.push(aiResponse);
+            // Afficher le SVG généré
+            svgOutput.textContent = aiResponse.content;
+            svgContainer.innerHTML = aiResponse.content;
+            // Réactiver les boutons
+            generateButton.disabled = false;
+            editButton.disabled = false;
+            console.log("Historique des prompts : ", promptList);
+        }
+
+        if (editButton) {
+            editButton.addEventListener("click", handleEdit);
+        }
+</script>
+
+ <button class="btn btn-secondary m-2" id="save-button">Sauvegarder</button>
+
+ <script>
+  const saveButton = document.getElementById("save-button");
+    async function saveSVG(params) {
+        const res = await fetch("/api/saveSVG", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(params),
+        });
+        const data = await res.json();
+        return data;
+    }
+    if (saveButton) {
+        saveButton.addEventListener("click", async () => {
+            const name = prompt("Entrez un nom pour le SVG :");
+            const svgOutput = document.getElementById("svg-output")?.textContent;
+            console.log("Sauvegarde du SVG : ", JSON.stringify(svgOutput));
+            
+            const params = {
+                nom: name,
+                code_svg: svgOutput || "<svg></svg>",
+                chat_history: JSON.stringify(promptList),
+            };
+            await saveSVG(params);
+        });
+    }
+ </script>
+
+  <script>
+    // Fonction utilitaire pour sauvegarder le SVG
+const saveButton = document.getElementById("save-button");
+
+async function saveSVG(params) {
+    // Envoi de la requête à notre endpoint
+    const res = await fetch("/api/saveSVG", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
+    });
+    return await res.json();
+}
+
+// Gestionnaire d'événements pour le bouton de sauvegarde
+if (saveButton) {
+    saveButton.addEventListener("click", async () => {
+        // Demande du nom du SVG à l'utilisateur
+        const name = prompt("Donnez un nom à votre création :");
+        const svgOutput = document.getElementById("svg-output")?.textContent;
+        console.log("Préparation de la sauvegarde :", JSON.stringify(svgOutput));
+        
+        // Préparation des données pour la sauvegarde
+        const params = {
+            nom: name,
+            code_svg: svgOutput || "<svg></svg>", // SVG par défaut si vide
+            chat_history: JSON.stringify(promptList), // Historique des échanges
+        };
+        
+        // Sauvegarde et gestion de la réponse
+        const result = await saveSVG(params);
+        if (result.success) {
+            alert("SVG sauvegardé avec succès !");
+        } else {
+            alert("Erreur lors de la sauvegarde : " + result.error);
+        }
+    });
+}
+  </script>
 </Layout>
