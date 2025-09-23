@@ -1,10 +1,69 @@
-<div>
-    <fieldset class="fieldset">
-        <legend class="fieldset-legend">Your bio</legend>
-        <textarea class="textarea h-24" placeholder="Bio"></textarea>
-    </fieldset>
-</div>
+---
+import Layout from "../layouts/Layout.astro";
+---
 
-<div>
-    <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-xl">Générer</button>
-</div>
+<Layout title="Générateur">
+  <main class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 min-h-screen">
+    
+    <div class="card bg-base-200 shadow-xl p-6 flex flex-col md:col-span-2">
+      <h2 class="text-2xl font-bold mb-4 text-primary text-center">🎨 Entrer un prompt</h2>
+      <textarea 
+        class="textarea textarea-bordered w-full mb-4 min-h-[200px]" 
+        placeholder="Décris ce que tu veux générer..."
+      ></textarea>
+      <button class="btn btn-primary self-end">🚀 Générer</button>
+    </div>
+
+    <div class="flex flex-col gap-6">
+      
+      <div class="card bg-base-200 shadow-xl p-4">
+        <h2 class="text-xl font-semibold mb-2 text-secondary">💻 Code généré</h2>
+        <pre class="bg-black text-green-400 p-3 rounded-lg overflow-auto h-56">
+          // Ici s'affichera le code généré
+        </pre>
+      </div>
+
+      <div class="card bg-base-200 shadow-xl p-4 flex flex-col items-center">
+        <h2 class="text-xl font-semibold mb-2 text-accent">🖼️ Aperçu SVG</h2>
+        <div class="w-full h-56 flex items-center justify-center bg-white rounded-lg">
+          
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+    //@ts-nocheck
+	
+	async function generateSVG(prompt) {
+		console.log('Generating SVG for prompt:', prompt);
+		const res = await fetch('/api/generateSVG', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ prompt }),
+		});
+		const data = await res.json();
+		return data.svg;
+	}
+
+	async function handleSubmit() {
+        let prompt = "";
+        let svgCode = "";
+        const promptElement = document.getElementById("user-prompt");
+        prompt = promptElement ? promptElement.value : "";
+        console.log('submitted: ', prompt); // message affiché sur votre console d'inspecteur dans le navigateur
+        const svgContainer = document.getElementById("svg-container");
+        let svgOutput = document.getElementById("svg-output");
+        svgCode = await generateSVG(prompt);
+        console.log('svgCode: ', svgCode);
+        svgOutput.textContent = svgCode;
+        svgContainer.innerHTML = svgCode;
+        generateButton.disabled = false;
+
+	}
+    const generateButton = document.getElementById("generate-button");
+	if (generateButton) {
+		generateButton.addEventListener("click", handleSubmit);
+	}
+</script>
