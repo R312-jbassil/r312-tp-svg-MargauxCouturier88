@@ -1,5 +1,16 @@
 ---
 import "../styles/global.css";
+
+const locale = "en"; 
+
+const ui = {
+
+  en: { nav: { language: "Language" } },
+
+  fr: { nav: { language: "Langue" } }
+
+};
+
 ---
 <!doctype html>
 <html lang="en" data-theme="light" class="h-full">
@@ -10,7 +21,15 @@ import "../styles/global.css";
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
 	</head>
+	
 	<body class="h-full">
+		<form method="POST" action={Astro.url.pathname}>
+			<select name="language" class="select" onchange="this.form.submit()">
+				<option disabled selected>{ui[locale].nav.language}</option>
+				<option value="en">English</option>
+				<option value="fr">Français</option>
+			</select>
+		</form>
 		<div class="h-full flex flex-col min-h-0">
 			<div class="flex-1 min-h-0">
 				<slot />
