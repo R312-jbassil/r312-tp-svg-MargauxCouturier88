@@ -1,42 +1,116 @@
 ---
 import "../styles/global.css";
+import pb from "../utils/pb";
 
 const locale = "en"; 
 
 const ui = {
-
   en: { nav: { language: "Language" } },
-
   fr: { nav: { language: "Langue" } }
-
 };
 
+// Récupérer l'utilisateur connecté
+let user = null;
+
+try {
+  const authData = pb.authStore.model;
+  console.log("Auth Data:", authData);
+  
+  if (authData) {
+    user = authData;
+    console.log("Utilisateur connecté:", user);
+  } else {
+    console.log("Aucun utilisateur connecté");
+  }
+} catch (error) {
+  console.error("Erreur lors de la récupération de l'utilisateur:", error);
+}
+
+// URL fixe de la photo
+const avatarUrl = "https://i.pinimg.com/736x/a4/0b/ac/a40bac98036979b7d364b122ff168f08.jpg";
 ---
+
 <!doctype html>
 <html lang="en" data-theme="light" class="h-full">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	
-	<body class="h-full">
-		<form method="POST" action="/api/logout" class="m-0 p-0 ml-4">
-			<button type="submit" class="btn btn-primary">Logout</button>
-		</form>
-		<form method="POST" action={Astro.url.pathname}>
-			<select name="language" class="select" onchange="this.form.submit()">
-				<option disabled selected>{ui[locale].nav.language}</option>
-				<option value="en">English</option>
-				<option value="fr">Français</option>
-			</select>
-		</form>
-		<div class="h-full flex flex-col min-h-0">
-			<div class="flex-1 min-h-0">
-				<slot />
-			</div>
-		</div>
-	</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Astro Basics</title>
+    </head>
+    
+    <body class="h-full bg-gray-50">
+
+        <header class="bg-white shadow-md border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+
+                    <nav class="flex items-center space-x-8">
+                        <a href="/" class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                            TP6 SVG
+                        </a>
+                        <div class="hidden md:flex space-x-6">
+                            <a href="/" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                Home
+                            </a>
+                            <a href="/gallery" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                Gallery
+                            </a>
+                            <a href="/signup" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                Sign Up
+                            </a>
+                        </div>
+                    </nav>
+
+                    <div class="flex items-center space-x-4">
+
+                        <!-- Photo de profil avec DaisyUI -->
+                        {user && (
+                            <div class="flex items-center space-x-3">
+                                <div class="avatar">
+                                    <div class="ring-primary ring-offset-base-100 w-10 rounded-full ring-2 ring-offset-2">
+                                        <img 
+                                            src={avatarUrl} 
+                                            alt={user.username || "Avatar"} 
+                                        />
+                                    </div>
+                                </div>
+                                <span class="text-sm font-medium text-gray-700 hidden sm:block">
+                                    {user.username}
+                                </span>
+                            </div>
+                        )}
+
+                        <form method="POST" action={Astro.url.pathname} class="m-0 p-0">
+                            <select 
+                                name="language" 
+                                class="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-2 cursor-pointer hover:bg-gray-200 transition-colors"
+                                onchange="this.form.submit()"
+                            >
+                                <option disabled selected>{ui[locale].nav.language}</option>
+                                <option value="en">English</option>
+                                <option value="fr">Français</option>
+                            </select>
+                        </form>
+
+                        <form method="POST" action="/api/logout" class="m-0 p-0">
+                            <button 
+                                type="submit" 
+                                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors focus:ring-4 focus:ring-red-300 focus:outline-none"
+                            >
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="h-full flex flex-col min-h-0">
+            <div class="flex-1 min-h-0">
+                <slot />
+            </div>
+        </div>
+    </body>
 </html>
