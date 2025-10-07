@@ -23,6 +23,9 @@ const ui = {
 	</head>
 	
 	<body class="h-full">
+		<form method="POST" action="/src/pages/login" class="m-0 p-0 ml-4">
+			<button type="submit" class="btn btn-primary">Logout</button>
+		</form>
 		<form method="POST" action={Astro.url.pathname}>
 			<select name="language" class="select" onchange="this.form.submit()">
 				<option disabled selected>{ui[locale].nav.language}</option>
